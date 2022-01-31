@@ -53,7 +53,7 @@ def complete_task_view(request, index):
 
 # Helper function to return pending tasks and completed tasks
 def get_tasks(task_type, search_term):
-    global tasks
+    tasks = None
     if task_type == "pending":
         tasks = Task.objects.filter(deleted=False, completed=False)
     elif task_type == "completed":
