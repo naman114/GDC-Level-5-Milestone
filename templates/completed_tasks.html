@@ -20,7 +20,9 @@
     {% for task in tasks %}
     <tr>
       <td class="table table-item">{{ forloop.counter }}.</td>
-      <td class="table table-item">{{ task }}</td>
+      <td class="table table-item">
+        {{ task.title }} - {{ task.created_date }}
+      </td>
     </tr>
     {% endfor %}
   </table>
