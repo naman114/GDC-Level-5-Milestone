@@ -3,42 +3,32 @@ from django.shortcuts import render
 
 from tasks.models import Task
 
-active_tasks = []
-completed_tasks = []
-
 # Pending tasks
 def tasks_view(request):
-    active_tasks = Task.objects.filter(deleted=False, completed=False)
     search_term = request.GET.get("search")
-    if search_term:
-        active_tasks = active_tasks.filter(title__icontains=search_term)
-    return render(request, "pending_tasks.html", {"tasks": active_tasks})
+    return render(
+        request, "pending_tasks.html", {"tasks": get_tasks("pending", search_term)}
+    )
 
 
 # Completed tasks
 def completed_view(request):
-    completed_tasks = Task.objects.filter(completed=True)
     search_term = request.GET.get("search")
-    if search_term:
-        completed_tasks = completed_tasks.filter(title__icontains=search_term)
-    return render(request, "completed_tasks.html", {"tasks": completed_tasks})
+    return render(
+        request, "completed_tasks.html", {"tasks": get_tasks("completed", search_term)}
+    )
 
 
 # All tasks
 def all_tasks_view(request):
-    active_tasks = Task.objects.filter(deleted=False, completed=False)
     search_term = request.GET.get("search")
-    if search_term:
-        active_tasks = active_tasks.filter(title__icontains=search_term)
-
-    completed_tasks = Task.objects.filter(completed=True)
-    search_term = request.GET.get("search")
-    if search_term:
-        completed_tasks = completed_tasks.filter(title__icontains=search_term)
     return render(
         request,
         "all_tasks.html",
-        {"active_tasks": active_tasks, "completed_tasks": completed_tasks},
+        {
+            "active_tasks": get_tasks("pending", search_term),
+            "completed_tasks": get_tasks("completed", search_term),
+        },
     )
 
 
@@ -59,3 +49,17 @@ def delete_task_view(request, index):
 def complete_task_view(request, index):
     Task.objects.filter(id=index).update(completed=True)
     return HttpResponseRedirect("/tasks")
+
+
+# Helper function to return pending tasks and completed tasks
+def get_tasks(task_type, search_term):
+    global tasks
+    if task_type == "pending":
+        tasks = Task.objects.filter(deleted=False, completed=False)
+    elif task_type == "completed":
+        tasks = Task.objects.filter(completed=True)
+
+    if search_term:
+        tasks = tasks.filter(title__icontains=search_term)
+
+    return tasks
