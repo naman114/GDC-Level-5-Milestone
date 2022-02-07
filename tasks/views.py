@@ -47,7 +47,7 @@ def delete_task_view(request, index):
 
 # Mark task as complete
 def complete_task_view(request, index):
-    Task.objects.filter(id=index).update(completed=True)
+    Task.objects.filter(id=index, deleted=False).update(completed=True)
     return HttpResponseRedirect("/tasks")
 
 
